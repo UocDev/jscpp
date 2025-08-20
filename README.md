@@ -38,7 +38,7 @@ run file
 
 ## example
 1. Print
-```jscpp
+```bash
 #include<psl>
 
 example main() {
