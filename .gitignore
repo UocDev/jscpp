@@ -30,6 +30,7 @@
 *.lai
 *.la
 ./build
+./build/cacha
 *.a
 *.lib
 
