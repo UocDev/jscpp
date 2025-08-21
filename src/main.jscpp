@@ -1,0 +1,6 @@
+#include<psl>
+
+Uoc main() {
+ print("Hi");
+
+}
