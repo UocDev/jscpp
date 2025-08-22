@@ -1,0 +1,34 @@
+name: JSCPP Compiler Tests
+
+on:
+  push:
+    branches: [ master, experiment-development ]
+  pull_request:
+    branches: [ master, experiment-development ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel cmake gcc make
+
+      - name: Configure & Build
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make -j$(nproc)
+
+      - name: Run main.jscpp
+        run: |
+          cd build
+          ./ujscc ../src/main.jscpp || exit 1 
+

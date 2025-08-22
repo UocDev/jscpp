@@ -1,0 +1,15 @@
+#include<vsl>
+#include<psl>
+
+V variabel() {
+ var hi: "hallo";
+
+}
+
+
+
+Uoc main() {
+ print(V variable.var);
+ print("Hi");
+
+}

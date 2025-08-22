@@ -1,4 +1,5 @@
 #pragma once
 #include <string>
 
-void parsePrint(const std::string &line, int  lineNum);
+// Declaration only (no inline implementation here)
+void parsePrint(const std::string &expr, int lineNum);
