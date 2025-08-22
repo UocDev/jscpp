@@ -1,5 +1,5 @@
 #include "print.hpp"
-#include "errorhandler.hpp"
+#include "../errorhandler.hpp"
 #include <iostream>
 #include <string>
 
