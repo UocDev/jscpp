@@ -6,7 +6,6 @@ namespace JSCPP {
 
     void throwError(const std::string &message, int line, ErrorType type, bool fatal) {
         std::string typeStr;
-
         switch (type) {
             case SYNTAX_ERROR: typeStr = "Syntax Error"; break;
             case RUNTIME_ERROR: typeStr = "Runtime Error"; break;
