@@ -1,46 +1,50 @@
-name: Build & Test JSCPP
+name: JSCPP Compiler Tests
 
 on:
   push:
-    branches: [ "experiment-development" ]
+    branches: [ master, experiment-development ]
   pull_request:
-    branches: [ "master" ]
-  workflow_dispatch:
+    branches: [ master, experiment-development ]
 
 jobs:
-  build-test:
+  build-and-test:
     runs-on: ubuntu-latest
-    container:
-      image: archlinux:latest
+    container: archlinux:latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Update & Install dependencies
+      - name: Install dependencies
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm base-devel cmake gcc make git
+          pacman -S --noconfirm base-devel cmake gcc make
 
-      - name: Build Compiler
+      - name: Configure & Build
         run: |
           mkdir -p build
           cd build
           cmake ..
           make -j$(nproc)
 
-      - name: Run Compiler Tests
+      - name: Run main.jscpp
         run: |
           cd build
-          # Run a test file (basic hello world)
-          echo '#include<psl>\nUoc main() {\n print("Hello World");\n}' > test.jscpp
-          ./ujscc test.jscpp || exit 1
+          ./ujscc ../src/main.jscpp || exit 1
 
-          # Test error handling (should exit non-zero)
-          echo 'Uoc main() {\n print("Unclosed);\n}' > test_error.jscpp
+      - name: Test error handling
+        run: |
+          cd build
+          # create intentionally broken file
+          cat > test_error.jscpp <<'EOF'
+          Uoc main() {
+            print("Unclosed);
+          }
+          EOF
+
           if ./ujscc test_error.jscpp; then
-            echo "❌ Error test FAILED (compiler did not exit with error)"
+            echo "Error test FAILED (compiler did not exit with error)"
             exit 1
           else
-            echo "✅ Error test PASSED"
+            echo "Error test PASSED"
           fi
