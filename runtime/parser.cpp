@@ -36,8 +36,10 @@ void Parser::parseLine(const std::string &line, int lineNum) {
     std::string trimmed = trim(line);
 
     // Ignore blank, comment, braces
-    if (trimmed.empty() || trimmed.substr(0, 2) == "//" || trimmed[0] == '#' || trimmed == "{" || trimmed == "}") 
+    if (trimmed.empty() || trimmed.substr(0, 2) == "//" ||
+        trimmed[0] == '#' || trimmed == "{" || trimmed == "}") {
         return;
+    }
 
     // Built-in syntax handlers
     if (trimmed.rfind("print(", 0) == 0) {
@@ -76,6 +78,6 @@ void Parser::parseLine(const std::string &line, int lineNum) {
         return;
     }
 
-    // Unknown syntax → just warn, don’t exit
-    JSCPP::throwError("Unknown syntax: " + trimmed, lineNum, JSCPP::SYNTAX_ERROR, false);
+    // Unknown syntax → warning (non-fatal)
+    JSCPP::warn("Unknown syntax: " + trimmed, lineNum);
 }
