@@ -2,9 +2,9 @@ name: JSCPP Compiler Tests
 
 on:
   push:
-    branches: [ master, experiment-development ]
+    branches: [ experiment-development ]
   pull_request:
-    branches: [ master, experiment-development ]
+    branches: [ master ]
 
 jobs:
   build-and-test:
