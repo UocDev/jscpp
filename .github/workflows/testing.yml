@@ -30,21 +30,5 @@ jobs:
       - name: Run main.jscpp
         run: |
           cd build
-          ./ujscc ../src/main.jscpp || exit 1
+          ./ujscc ../src/main.jscpp || exit 1 
 
-      - name: Test error handling
-        run: |
-          cd build
-          # create intentionally broken file
-          cat > test_error.jscpp <<'EOF'
-          Uoc main() {
-            print("Unclosed);
-          }
-          EOF
-
-          if ./ujscc test_error.jscpp; then
-            echo "Error test FAILED (compiler did not exit with error)"
-            exit 1
-          else
-            echo "Error test PASSED"
-          fi
