@@ -1,0 +1,100 @@
+name: Rolling Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build UJSCC (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up CMake
+        uses: lukka/get-cmake@v3
+
+      - name: Configure CMake
+        run: cmake -S . -B build
+
+      - name: Build UJSCC
+        run: cmake --build build --config Release
+
+      - name: Rename installer per OS
+        run: |
+          mkdir -p dist
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            cp build/ujscc dist/ujscc-linux
+          elif [[ "${{ runner.os }}" == "macOS" ]]; then
+            cp build/ujscc dist/ujscc-macos
+          else
+            cp build/Release/ujscc.exe dist/ujscc-windows.exe
+          fi
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ujscc-${{ runner.os }}
+          path: dist/*
+
+  release:
+    name: Publish Rolling Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./release
+
+      - name: Get Balikpapan local timestamp
+        id: timestamp
+        run: |
+          sudo apt-get install -y tzdata
+          export TZ="Asia/Makassar"
+          DATE=$(date +'%Y-%-m-%-d')
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          DATE="${{ steps.timestamp.outputs.date }}"
+          TAG=$DATE
+          COUNT=1
+          while gh release view "$TAG" &>/dev/null; do
+            COUNT=$((COUNT+1))
+            TAG="${DATE}-${COUNT}"
+          done
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read release notes from directory
+        id: message
+        run: |
+          FILE="releaseNotes/${{ steps.tag.outputs.tag }}.md"
+          if [[ -f "$FILE" ]]; then
+            MSG=$(cat "$FILE")
+          else
+            MSG="Rolling Release Build"
+          fi
+          echo "msg<<EOF" >> $GITHUB_OUTPUT
+          echo "$MSG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "UJSCC Rolling Release ${{ steps.tag.outputs.tag }}"
+          body: ${{ steps.message.outputs.msg }}
+          files: ./release/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
