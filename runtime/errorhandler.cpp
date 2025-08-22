@@ -4,23 +4,28 @@
 
 namespace JSCPP {
 
-    void throwError(const std::string &message, int line, ErrorType type, bool fatal) {
-        std::string typeStr;
+    // Helper to convert ErrorType into string
+    static std::string errorTypeToString(ErrorType type) {
         switch (type) {
-            case SYNTAX_ERROR: typeStr = "Syntax Error"; break;
-            case RUNTIME_ERROR: typeStr = "Runtime Error"; break;
-            case WARNING:      typeStr = "Warning"; break;
-            case SYSTEM_ERROR: typeStr = "System Error"; break;
+            case SYNTAX_ERROR:  return "Syntax Error";
+            case RUNTIME_ERROR: return "Runtime Error";
+            case WARNING:       return "Warning";
+            case SYSTEM_ERROR:  return "System Error";
+            default:            return "Unknown Error";
         }
+    }
+
+    void throwError(const std::string &message, int line, ErrorType type, bool fatal) {
+        std::string typeStr = errorTypeToString(type);
 
         if (line > 0)
             std::cerr << "[JSCPP " << typeStr << "] Line " << line << ": " << message << std::endl;
         else
             std::cerr << "[JSCPP " << typeStr << "] " << message << std::endl;
 
-        // Only exit if fatal error
+        // Exit on any fatal error except warnings
         if (fatal && type != WARNING) {
-            std::exit(1);
+            std::exit(1);  // Compiler stops here
         }
     }
 
@@ -28,4 +33,17 @@ namespace JSCPP {
         throwError(message, line, WARNING, false);
     }
 
-}
+    // Convenience wrappers so parser/runtime can call directly
+    void syntaxError(const std::string &message, int line, bool fatal) {
+        throwError(message, line, SYNTAX_ERROR, fatal);
+    }
+
+    void runtimeError(const std::string &message, int line, bool fatal) {
+        throwError(message, line, RUNTIME_ERROR, fatal);
+    }
+
+    void systemError(const std::string &message, int line, bool fatal) {
+        throwError(message, line, SYSTEM_ERROR, fatal);
+    }
+
+} // namespace JSCPP
