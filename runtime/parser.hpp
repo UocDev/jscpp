@@ -1,19 +1,14 @@
 #pragma once
 #include <string>
-#include <unordered_map>
-
-struct Declaration {
-    std::string keyword;
-    std::string name;
-    std::string type; // "function" or "variable"
-};
+#include <vector>
+#include <memory>
+#include "syntax/syntaxhandler.hpp"
 
 class Parser {
-public:
-    static std::unordered_map<std::string, Declaration> userDeclarations;
+private:
+    std::vector<std::unique_ptr<SyntaxHandler>> handlers;
 
-    void parseFile(const std::string &filepath);
+public:
+    Parser();
     void parseLine(const std::string &line, int lineNum);
 };
-
-inline bool DEBUG_LOGS = false;
