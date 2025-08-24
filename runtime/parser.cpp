@@ -2,6 +2,7 @@
 #include "errorhandler.hpp"
 
 // include syntax modules
+#include "syntax/include.cpp"
 #include "syntax/print.cpp"
 #include "syntax/variable.cpp"
 
@@ -9,6 +10,7 @@ Parser::Parser() {
     // Register all syntax handlers here
     handlers.push_back(std::make_unique<PrintSyntax>());
     handlers.push_back(std::make_unique<VariableSyntax>());
+    handlers.push_back(std::make_unique<IncludeSyntax>());
 }
 
 void Parser::parseLine(const std::string &line, int lineNum) {
