@@ -1,0 +1,3 @@
+Uoc main() {
+ print("Hi");
+}
