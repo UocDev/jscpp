@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(UJSCC)
+project(WCC)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -11,7 +11,8 @@ set(SOURCES
     runtime/errorhandler.cpp
     runtime/syntax/print.cpp
     runtime/syntax/variable.cpp
+    runtime/syntax/include.cpp
 )
 
-add_executable(ujscc ${SOURCES})
+add_executable(WCC ${SOURCES})
 
